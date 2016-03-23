@@ -511,12 +511,25 @@ angular.module('openlayers-directive').factory('olHelpers', function($q, $log, $
                     return;
                 }
 
+                var imageProjection;
+                if(source.hasOwnProperty('projection')){
+                    imageProjection = new ol.proj.get(source.projection);
+                }else{
+                    imageProjection = projection;
+                }
+                var imageExtent;
+                if(source.hasOwnProperty('extent') && source.hasOwnProperty('extentProjection')){
+                    imageExtent = ol.proj.transformExtent(source.extent,source.extentProjection, projection.b)
+                }else{
+                    imageExtent = projection.getExtent();
+                }
+
                 oSource = new ol.source.ImageStatic({
                     url: source.url,
                     attributions: createAttribution(source),
                     imageSize: source.imageSize,
-                    projection: projection,
-                    imageExtent: projection.getExtent(),
+                    projection: imageProjection,
+                    imageExtent: imageExtent,
                     imageLoadFunction: source.imageLoadFunction
                 });
                 break;

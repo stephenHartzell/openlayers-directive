@@ -37,11 +37,18 @@ module.exports = function(grunt) {
         },
         clean: {
             'all': ["dist/angular-openlayers-directive.js","dist/angular-openlayers-directive.min.js","dist/angular-openlayers-directive.css"]
+        },
+        watch:{
+            scripts: {
+                files: ['src/directives/*.js','src/services/*.js'],
+                tasks: ['clean','cssmin','concat','uglify']
+            }
         }
     });
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.registerTask('default', ['clean','cssmin','concat','uglify']);
 };
