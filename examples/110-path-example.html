@@ -14,9 +14,9 @@
   </head>
   <body ng-controller="DemoController">
       <openlayers lat="-34.60" lon="-58.38" zoom="10" height="400px" width="100%">
-          <ol-path message="This is a path" coords="[[[-58.38,-34.60], [-58.58,-34.60]]]"></ol-path>
-          <ol-path message="And this is another path" coords="[[[-58.38,-34.70], [-58.38,-34.80]]]"></ol-path>
-          <ol-path message="Hello there" coords="[[[-58.48,-34.40], [-58.58,-34.50]]]"></ol-path>
+          <ol-path message="I'm a Polygon" coords="[[[-58.38,-34.60], [-58.58,-34.60], [-60,-35]]]" ol-type="Polygon"></ol-path>
+          <ol-path message="I'm another Polygon" coords="[[[-58.38,-34.70], [-58.38,-34.80], [-58,-34]]]" ol-type="Polygon"></ol-path>
+          <ol-path message="I'm a LineString" coords="[[-58.48,-34.40], [-58.58,-34.50]]" ol-type="LineString"></ol-path>
       </openlayers>
       <h1>Adding a path to the map</h1>
       <p>You can add a path to the map easily with the <strong>ol-path</strong> sub-directive.</p>

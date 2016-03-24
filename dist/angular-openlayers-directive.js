@@ -559,11 +559,12 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     removeLayer(layerCollection, layer.index);
                 });
 
-                if (isDefined(attrs.coords)) {
+                if (isDefined(attrs.coords) && isDefined(attrs.olType)) {
                     var proj = attrs.proj || 'EPSG:4326';
                     var coords = JSON.parse(attrs.coords);
+                    var type = attrs.olType;
                     var data = {
-                        type: 'Polygon',
+                        type: type,
                         coords: coords,
                         projection: proj,
                         style: mapDefaults.styles.path
@@ -2072,6 +2073,9 @@ angular.module('openlayers-directive').factory('olHelpers', function($q, $log, $
             var geometry;
 
             switch (data.type) {
+                case 'LineString':
+                    geometry = new ol.geom.LineString(data.coords);
+                    break;
                 case 'Polygon':
                     geometry = new ol.geom.Polygon(data.coords);
                     break;

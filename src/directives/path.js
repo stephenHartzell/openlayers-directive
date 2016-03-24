@@ -31,11 +31,12 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     removeLayer(layerCollection, layer.index);
                 });
 
-                if (isDefined(attrs.coords)) {
+                if (isDefined(attrs.coords) && isDefined(attrs.olType)) {
                     var proj = attrs.proj || 'EPSG:4326';
                     var coords = JSON.parse(attrs.coords);
+                    var type = attrs.olType;
                     var data = {
-                        type: 'Polygon',
+                        type: type,
                         coords: coords,
                         projection: proj,
                         style: mapDefaults.styles.path

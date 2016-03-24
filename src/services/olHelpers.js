@@ -899,6 +899,9 @@ angular.module('openlayers-directive').factory('olHelpers', function($q, $log, $
             var geometry;
 
             switch (data.type) {
+                case 'LineString':
+                    geometry = new ol.geom.LineString(data.coords);
+                    break;
                 case 'Polygon':
                     geometry = new ol.geom.Polygon(data.coords);
                     break;
