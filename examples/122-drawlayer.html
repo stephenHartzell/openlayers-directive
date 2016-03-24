@@ -32,7 +32,11 @@
                   $scope.interaction = {"type":$scope.selectedType.type};
               }
             };
-            $scope.clearDrawing = undefined;
+            $scope.clearDrawing = function(){
+                var drawCollection = $scope.getCollectionData();
+                drawCollection.clear();
+            };
+
             $scope.getCollectionData = undefined;
             $scope.logCollectionData = function(){
                 console.log($scope.getCollectionData());
@@ -41,7 +45,7 @@
     </script>
 </head>
 <body ng-controller="DrawController">
-<openlayers ol-center="center" height="600px" ol-interaction="interaction" ol-clear-collection="clearDrawing" ol-get-collection="getCollectionData">
+<openlayers ol-center="center" height="600px" ol-draw-interaction="interaction" ol-get-draw-collection="getCollectionData">
 
 </openlayers>
 <h1>Static Image Layer example</h1>

@@ -9,9 +9,8 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 defaults: '=olDefaults',
                 view: '=olView',
                 events: '=olEvents',
-                interaction: '=olInteraction',
-                clearCollection: '=olClearCollection',
-                getCollection: '=olGetCollection',
+                drawInteraction: '=olDrawInteraction',
+                getDrawCollection: '=olGetDrawCollection'
             },
             template: '<div class="angular-openlayers-map" ng-transclude></div>',
             controller: function($scope) {
@@ -35,7 +34,7 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 var setViewEvents = olHelpers.setViewEvents;
                 var createView = olHelpers.createView;
                 var defaults = olMapDefaults.setDefaults(scope);
-                var drawInteraction;  // Stores most current draw interaction so that it may be removed later
+                var lastDrawInteraction;  // Stores most current draw interaction so that it may be removed later
 
                 // Set width and height if they are defined
                 if (isDefined(attrs.width)) {
@@ -146,28 +145,24 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 });
                 map.addInteraction(modify);
 
-                scope.$watch('interaction', function(interaction) {
+                scope.$watch('drawInteraction', function(interaction) {
                   if(angular.isUndefined(interaction) || interaction == null){
-                      if(drawInteraction){
-                          map.removeInteraction(drawInteraction);
+                      if(lastDrawInteraction){
+                          map.removeInteraction(lastDrawInteraction);
                       }
                       return;
                   }
 
-                  map.removeInteraction(drawInteraction);
+                  map.removeInteraction(lastDrawInteraction);
                   var newDrawInteraction = new ol.interaction.Draw({
                       features: drawFeatures,
                       type: interaction.type
                   });
-                  drawInteraction = newDrawInteraction;
-                  map.addInteraction(drawInteraction);
+                  lastDrawInteraction = newDrawInteraction;
+                  map.addInteraction(newDrawInteraction);
                 });
 
-                scope.clearCollection = function(){
-                    drawFeatures.clear();
-                };
-
-                scope.getCollection = function(){
+                scope.getDrawCollection = function(){
                     return drawFeatures;
                 };
 
