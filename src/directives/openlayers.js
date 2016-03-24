@@ -9,7 +9,9 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 defaults: '=olDefaults',
                 view: '=olView',
                 events: '=olEvents',
-                interaction: '=olInteraction'
+                interaction: '=olInteraction',
+                clearCollection: '=olClearCollection',
+                getCollection: '=olGetCollection',
             },
             template: '<div class="angular-openlayers-map" ng-transclude></div>',
             controller: function($scope) {
@@ -33,7 +35,7 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 var setViewEvents = olHelpers.setViewEvents;
                 var createView = olHelpers.createView;
                 var defaults = olMapDefaults.setDefaults(scope);
-                var drawInteraction;
+                var drawInteraction;  // Stores most current draw interaction so that it may be removed later
 
                 // Set width and height if they are defined
                 if (isDefined(attrs.width)) {
@@ -160,6 +162,14 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                   drawInteraction = newDrawInteraction;
                   map.addInteraction(drawInteraction);
                 });
+
+                scope.clearCollection = function(){
+                    drawFeatures.clear();
+                };
+
+                scope.getCollection = function(){
+                    return drawFeatures;
+                };
 
                 // Resolve the map object to the promises
                 scope.setMap(map);

@@ -32,17 +32,24 @@
                   $scope.interaction = {"type":$scope.selectedType.type};
               }
             };
+            $scope.clearDrawing = undefined;
+            $scope.getCollectionData = undefined;
+            $scope.logCollectionData = function(){
+                console.log($scope.getCollectionData());
+            };
         }]);
     </script>
 </head>
 <body ng-controller="DrawController">
-<openlayers ol-center="center" height="600px" ol-interaction="interaction">
+<openlayers ol-center="center" height="600px" ol-interaction="interaction" ol-clear-collection="clearDrawing" ol-get-collection="getCollectionData">
 
 </openlayers>
 <h1>Static Image Layer example</h1>
 <p>You can load an static image (no tiles) easily, look at the source of the <strong>layer</strong> object:</p>
 <button ng-hide="drawMode" ng-click="toggleDraw()">Click me to enter draw mode</button>
 <button ng-hide="!drawMode" ng-click="toggleDraw()">Click me to exit draw mode</button>
+<button ng-click="clearDrawing()">Click me to clear drawings</button>
+<button ng-click="logCollectionData()">Click me to log collection data</button>
 <select ng-model="selectedType" ng-options="type.label for type in types" ng-change="changeInteraction()"></select>
 {{interaction.type}}
 <pre ng-bind="static | json"></pre>
