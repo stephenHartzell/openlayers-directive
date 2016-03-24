@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="demoapp">
+<head>
+    <script src="../bower_components/openlayers3/build/ol.js"></script>
+    <script src="../bower_components/angular/angular.min.js"></script>
+    <script src="../bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="../dist/angular-openlayers-directive.js"></script>
+    <link rel="stylesheet" href="../bower_components/openlayers3/build/ol.css" />
+    <link rel="stylesheet" href="../dist/angular-openlayers-directive.css" />
+    <script>
+        var app = angular.module("demoapp", ["openlayers-directive"]);
+        app.controller("StaticImageController", [ '$scope', '$http', 'olData', function($scope, $http, olData) {
+            angular.extend($scope, {
+                eiffel: {
+                    lat:0,
+                    lon:0,
+                    label: {
+                        message: 'test',
+                        show: true,
+                        showOnMouseOver: true
+                    }
+                }
+            });
+
+        } ]);
+    </script>
+</head>
+<body ng-controller="StaticImageController">
+<openlayers height="600px">
+    <ol-marker ol-marker-properties="eiffel"></ol-marker>
+</openlayers>
+<h1>You can change the marker message on the fly</h1>
+<input ng-model="eiffel.label.message">
+<pre ng-bind="layers | json"></pre>
+<pre ng-bind="center | json"></pre>
+</body>
+</html>
