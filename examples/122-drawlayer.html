@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html ng-app="demoapp">
+<head>
+    <script src="../bower_components/openlayers3/build/ol.js"></script>
+    <script src="../bower_components/angular/angular.min.js"></script>
+    <script src="../bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="../dist/angular-openlayers-directive.js"></script>
+    <link rel="stylesheet" href="../bower_components/openlayers3/build/ol.css" />
+    <script>
+        var app = angular.module("demoapp", ["openlayers-directive"]);
+        app.controller("DrawController", [ '$scope', '$http', 'olData', function($scope, $http, olData) {
+            angular.extend($scope, {
+                center: {
+                    lat: 10,
+                    lon: 10,
+                    zoom: 4
+                },
+                drawMode: false,
+                types: [{"label":"Point","type":"Point"},{"label":"Line","type":"LineString"},{"label":"Polygon","type":"Polygon"}]
+            });
+            $scope.selectedType = $scope.types[0];
+            $scope.toggleDraw = function(){
+                $scope.drawMode = !$scope.drawMode;
+                if($scope.drawMode){
+                    $scope.interaction = {"type":$scope.selectedType.type};
+                }else{
+                    $scope.interaction = undefined;
+                }
+            };
+            $scope.changeInteraction = function(){
+              if($scope.interaction){
+                  $scope.interaction = {"type":$scope.selectedType.type};
+              }
+            };
+        }]);
+    </script>
+</head>
+<body ng-controller="DrawController">
+<openlayers ol-center="center" height="600px" ol-interaction="interaction">
+
+</openlayers>
+<h1>Static Image Layer example</h1>
+<p>You can load an static image (no tiles) easily, look at the source of the <strong>layer</strong> object:</p>
+<button ng-hide="drawMode" ng-click="toggleDraw()">Click me to enter draw mode</button>
+<button ng-hide="!drawMode" ng-click="toggleDraw()">Click me to exit draw mode</button>
+<select ng-model="selectedType" ng-options="type.label for type in types" ng-change="changeInteraction()"></select>
+{{interaction.type}}
+<pre ng-bind="static | json"></pre>
+<pre ng-bind="center | json"></pre>
+</body>
+</html>

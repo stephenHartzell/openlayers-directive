@@ -8,7 +8,8 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 center: '=olCenter',
                 defaults: '=olDefaults',
                 view: '=olView',
-                events: '=olEvents'
+                events: '=olEvents',
+                interaction: '=olInteraction'
             },
             template: '<div class="angular-openlayers-map" ng-transclude></div>',
             controller: function($scope) {
@@ -32,6 +33,7 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 var setViewEvents = olHelpers.setViewEvents;
                 var createView = olHelpers.createView;
                 var defaults = olMapDefaults.setDefaults(scope);
+                var drawInteraction;
 
                 // Set width and height if they are defined
                 if (isDefined(attrs.width)) {
@@ -105,13 +107,51 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 // Set the Default events for the map
                 setMapEvents(defaults.events, map, scope);
 
-                //Set the Default events for the map view
+                // Set the Default events for the map view
                 setViewEvents(defaults.events, map, scope);
+
+                // Add layer for draw interactions
+                var drawSource = new ol.source.Vector();
+                var drawVectorLayer = new ol.layer.Vector({
+                    source: drawSource,
+                    style: new ol.style.Style({
+                        fill: new ol.style.Fill({
+                            color: 'rgba(255, 255, 255, 0.2)'
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: '#ffcc33',
+                            width: 2
+                        }),
+                        image: new ol.style.Circle({
+                            radius: 7,
+                            fill: new ol.style.Fill({
+                                color: '#ffcc33'
+                            })
+                        })
+                    })
+                });
+                map.addLayer(drawVectorLayer);
+
+                scope.$watch('interaction', function(interaction) {
+                  if(angular.isUndefined(interaction) || interaction == null){
+                      if(drawInteraction){
+                          map.removeInteraction(drawInteraction);
+                      }
+                      return;
+                  }
+
+                  map.removeInteraction(drawInteraction);
+                  var newDrawInteraction = new ol.interaction.Draw({
+                      source: drawSource,
+                      type: interaction.type
+                  });
+                  drawInteraction = newDrawInteraction;
+                  map.addInteraction(drawInteraction);
+                });
 
                 // Resolve the map object to the promises
                 scope.setMap(map);
                 olData.setMap(map, attrs.id);
-
             }
         };
     });
