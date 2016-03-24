@@ -156,7 +156,7 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                   map.removeInteraction(lastDrawInteraction);
                   var newDrawInteraction = new ol.interaction.Draw({
                       features: drawFeatures,
-                      type: interaction.type
+                      type: interaction
                   });
                   lastDrawInteraction = newDrawInteraction;
                   map.addInteraction(newDrawInteraction);

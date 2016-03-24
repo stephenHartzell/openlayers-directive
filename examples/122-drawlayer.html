@@ -22,14 +22,14 @@
             $scope.toggleDraw = function(){
                 $scope.drawMode = !$scope.drawMode;
                 if($scope.drawMode){
-                    $scope.interaction = {"type":$scope.selectedType.type};
+                    $scope.interaction = $scope.selectedType.type;
                 }else{
                     $scope.interaction = undefined;
                 }
             };
             $scope.changeInteraction = function(){
               if($scope.interaction){
-                  $scope.interaction = {"type":$scope.selectedType.type};
+                  $scope.interaction = $scope.selectedType.type;
               }
             };
             $scope.clearDrawing = function(){
