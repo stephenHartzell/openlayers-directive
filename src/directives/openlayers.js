@@ -111,9 +111,9 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                 setViewEvents(defaults.events, map, scope);
 
                 // Add layer for draw interactions
-                var drawSource = new ol.source.Vector();
+                var drawFeatures = new ol.Collection();
                 var drawVectorLayer = new ol.layer.Vector({
-                    source: drawSource,
+                    source: new ol.source.Vector({features: drawFeatures}),
                     style: new ol.style.Style({
                         fill: new ol.style.Fill({
                             color: 'rgba(255, 255, 255, 0.2)'
@@ -131,6 +131,18 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                     })
                 });
                 map.addLayer(drawVectorLayer);
+                var modify = new ol.interaction.Modify({
+                    features: drawFeatures,
+                    // the SHIFT key must be pressed to delete vertices, so
+                    // that new vertices can be drawn at the same position
+                    // of existing vertices
+                    deleteCondition: function (event)
+                    {
+                        return ol.events.condition.shiftKeyOnly(event) &&
+                            ol.events.condition.singleClick(event);
+                    }
+                });
+                map.addInteraction(modify);
 
                 scope.$watch('interaction', function(interaction) {
                   if(angular.isUndefined(interaction) || interaction == null){
@@ -142,7 +154,7 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
 
                   map.removeInteraction(drawInteraction);
                   var newDrawInteraction = new ol.interaction.Draw({
-                      source: drawSource,
+                      features: drawFeatures,
                       type: interaction.type
                   });
                   drawInteraction = newDrawInteraction;
