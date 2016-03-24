@@ -409,12 +409,6 @@ angular.module('openlayers-directive').directive('olMarker', function($log, $q, 
                         map.getViewport().addEventListener('click', properties.removeAllOverlays);
                     }
                 }, true);
-
-                if(scope.properties && scope.properties.label){
-                    scope.$watch('properties.label.message', function(){
-                        console.log('got hit');
-                    });
-                }
             });
         }
     };
