@@ -3,9 +3,7 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
     return {
         restrict: 'E',
         scope: {
-            properties: '=olGeomProperties',
-            showMessageOnMouseOver: '=showMessageOnMouseOver',
-            showMessage: '=showMessage'
+            properties: '=olGeomProperties'
         },
         require: '^openlayers',
         replace: true,
@@ -19,15 +17,15 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
             var insertLayer = olHelpers.insertLayer;
             var removeLayer = olHelpers.removeLayer;
             var olScope = controller.getOpenlayersScope();
-            var label;
-            scope.attrs = attrs;
 
             olScope.getMap().then(function(map) {
                 var mapDefaults = olMapDefaults.getDefaults(olScope);
                 var viewProjection = mapDefaults.view.projection;
-
                 var layer = createVectorLayer();
                 var layerCollection = map.getLayers();
+                var label;
+                var feature;
+                var data = {};
 
                 insertLayer(layerCollection, layerCollection.getLength(), layer);
 
@@ -35,21 +33,34 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     removeLayer(layerCollection, layer.index);
                 });
 
-                if (isDefined(attrs.coords) && isDefined(attrs.olType)) {
+                if (!isDefined(scope.properties) && isDefined(attrs.coords) && isDefined(attrs.olType)) {
                     var proj = attrs.proj || 'EPSG:4326';
                     var coords = JSON.parse(attrs.coords);
                     var type = attrs.olType;
-                    var data = {
+                    data = {
                         type: type,
                         coords: coords,
                         projection: proj,
                         style: mapDefaults.styles.path
                     };
-                    var feature = createFeature(data, viewProjection);
+                    feature = createFeature(data, viewProjection);
                     layer.getSource().addFeature(feature);
 
-                    // This function handles popup on mouse over
-                    handleInteraction = function(evt) {
+                    if (attrs.message) {
+                        scope.message = attrs.message;
+                        var extent = feature.getGeometry().getExtent();
+                        label = createOverlay(element, extent);
+                        map.addOverlay(label);
+                    }
+                    return;
+                }
+
+                scope.$watch('properties', function(properties) {
+
+                    // Remove previous listeners if any
+                    map.getViewport().removeEventListener('mousemove', properties.handleInteraction);
+
+                    properties.handleInteraction = function(evt) {
                         var found = false;
                         var pixel = map.getEventPixel(evt);
                         var detectedFeature = map.forEachFeatureAtPixel(pixel, function(feature) {
@@ -77,51 +88,58 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                         }
                     };
 
-                    if (attrs.hasOwnProperty('message')) {
-                        scope.$watch('attrs.message', function (newMessage, oldMessage) {
-                            scope.message = newMessage;
-                            if(!oldMessage){
-                                if(scope.showMessage){
-                                    map.addOverlay(label);
-                                }
-                            }
-                            if(!newMessage){
-                                if(scope.showMessage){
-                                    map.removeOverlay(label);
-                                }
-                            }
-                        });
+                    if (!isDefined(feature)) {
+                        data.projection = properties.projection ? properties.projection : 'EPSG:4326';
+                        data.coords = properties.coords ? properties.coords : data.coords;
+                        data.type = attrs.olType;
 
+                        if (isDefined(properties.style)) {
+                            data.style = properties.style;
+                        } else {
+                            data.style = mapDefaults.styles.path;
+                        }
+
+                        feature = createFeature(data, viewProjection);
+                        if (!isDefined(feature)) {
+                            $log.error('[AngularJS - Openlayers] Received invalid data on ' +
+                                'the path.');
+                        }
+                        // Add a link between the feature and the marker properties
+                        feature.set('path', properties);
+                        layer.getSource().addFeature(feature);
+                    } else {
+                        console.log("why did I go here?!?!");
+                    }
+
+                    if (isDefined(label)) {
+                        map.removeOverlay(label);
+                    }
+
+                    if (!isDefined(properties.label)) {
+                        return;
+                    }
+
+                    scope.message = properties.label.message;
+                    if (!isDefined(scope.message) || scope.message.length === 0) {
+                        return;
+                    }
+
+                    if (properties.label && properties.label.show === true) {
                         var extent = feature.getGeometry().getExtent();
                         label = createOverlay(element, extent);
-                        if (attrs.hasOwnProperty('showMessage')) {
-                            scope.$watch('showMessage', function (show) {
-                                if(!scope.message) return;
-                                if (show) {
-                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
-                                    map.addOverlay(label);
-                                } else {
-                                    if (scope.showOnMouseOver) {
-                                        map.getViewport().addEventListener('mousemove', handleInteraction);
-                                    }
-                                    map.removeOverlay(label);
-                                }
-                            });
-                        }
-
-                        if (attrs.hasOwnProperty('showMessageOnMouseOver')) {
-                            scope.$watch('showMessageOnMouseOver', function (hover) {
-                                if (hover && !scope.show) {
-                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
-                                    map.getViewport().addEventListener('mousemove', handleInteraction);
-                                } else {
-                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
-                                }
-                            });
-                        }
+                        map.addOverlay(label);
                     }
-                    return;
-                }
+
+                    if (label && properties.label && properties.label.show === false) {
+                        map.removeOverlay(label);
+                        label = undefined;
+                    }
+
+                    // Then setup new ones according to properties
+                    if (properties.label && properties.label.show === false && properties.label.showOnMouseOver) {
+                        map.getViewport().addEventListener('mousemove', properties.handleInteraction);
+                    }
+                }, true);
             });
         }
     };
