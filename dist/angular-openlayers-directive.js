@@ -660,9 +660,6 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                             if(!isDefined(label)) {
                                 extent = detectedFeature.getGeometry().getExtent();
                                 label = createOverlay(element, extent);
-                                angular.forEach(map.getOverlays(), function(value) {
-                                    map.removeOverlay(value);
-                                });
                                 map.addOverlay(label);
                             }
                             map.getTarget().style.cursor = 'pointer';
