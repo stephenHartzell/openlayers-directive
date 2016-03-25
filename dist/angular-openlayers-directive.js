@@ -162,9 +162,11 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                   map.addInteraction(newDrawInteraction);
                 });
 
-                scope.getDrawCollection = function(){
-                    return drawFeatures;
-                };
+                if(attrs.hasOwnProperty("getDrawCollection")){
+                    scope.getDrawCollection = function () {
+                        return drawFeatures;
+                    };
+                }
 
                 // Resolve the map object to the promises
                 scope.setMap(map);
@@ -588,7 +590,9 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
     return {
         restrict: 'E',
         scope: {
-            properties: '=olGeomProperties'
+            properties: '=olGeomProperties',
+            showOnMouseOver: '=showOnMouseOver',
+            show: '=show'
         },
         require: '^openlayers',
         replace: true,
@@ -602,6 +606,14 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
             var insertLayer = olHelpers.insertLayer;
             var removeLayer = olHelpers.removeLayer;
             var olScope = controller.getOpenlayersScope();
+            var label;
+            scope.attrs = attrs;
+
+            if(attrs.hasOwnProperty('message')) {
+                scope.$watch('attrs.message', function (newMessage) {
+                    scope.message = newMessage;
+                });
+            }
 
             olScope.getMap().then(function(map) {
                 var mapDefaults = olMapDefaults.getDefaults(olScope);
@@ -629,11 +641,62 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     var feature = createFeature(data, viewProjection);
                     layer.getSource().addFeature(feature);
 
-                    if (attrs.message) {
-                        scope.message = attrs.message;
+                    // This function handles popup on mouse over
+                    handleInteraction = function(evt) {
+                        var found = false;
+                        var pixel = map.getEventPixel(evt);
+                        var detectedFeature = map.forEachFeatureAtPixel(pixel, function(feature) {
+                            return feature;
+                        });
+
+                        var actionTaken = false;
+                        if (detectedFeature === feature) {
+                            actionTaken = true;
+                            found = true;
+                            var extent = detectedFeature.getGeometry().getExtent();
+                            label = createOverlay(element, extent);
+                            map.addOverlay(label);
+                            map.getTarget().style.cursor = 'pointer';
+                        }
+
+                        if (!found && label) {
+                            actionTaken = true;
+                            map.removeOverlay(label);
+                            map.getTarget().style.cursor = '';
+                        }
+
+                        if (actionTaken) {
+                            evt.preventDefault();
+                        }
+                    };
+
+                    if (attrs.hasOwnProperty('message')) {
                         var extent = feature.getGeometry().getExtent();
-                        var label = createOverlay(element, extent);
-                        map.addOverlay(label);
+                        label = createOverlay(element, extent);
+                        if (attrs.hasOwnProperty('show')) {
+                            scope.$watch('show', function (show) {
+                                if (show) {
+                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
+                                    map.addOverlay(label);
+                                } else {
+                                    if (scope.showOnMouseOver) {
+                                        map.getViewport().addEventListener('mousemove', handleInteraction);
+                                    }
+                                    map.removeOverlay(label);
+                                }
+                            });
+                        }
+
+                        if (attrs.hasOwnProperty('showOnMouseOver')) {
+                            scope.$watch('showOnMouseOver', function (hover) {
+                                if (hover && !scope.show) {
+                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
+                                    map.getViewport().addEventListener('mousemove', handleInteraction);
+                                } else {
+                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
+                                }
+                            });
+                        }
                     }
                     return;
                 }
@@ -1146,12 +1209,6 @@ angular.module('openlayers-directive').directive('olMarker', function($log, $q, 
                         map.getViewport().addEventListener('click', properties.removeAllOverlays);
                     }
                 }, true);
-
-                if(scope.properties && scope.properties.label){
-                    scope.$watch('properties.label.message', function(){
-                        console.log('got hit');
-                    });
-                }
             });
         }
     };

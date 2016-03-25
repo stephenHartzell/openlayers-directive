@@ -16,10 +16,13 @@
                     lon:0,
                     label: {
                         message: 'test',
-                        show: false,
+                        show: true,
                         showOnMouseOver: true
                     }
-                }
+                },
+                message: "I'm a Polygon",
+                show: true,
+                hover: false
             });
 
         } ]);
@@ -27,10 +30,12 @@
 </head>
 <body ng-controller="StaticImageController">
 <openlayers height="600px">
-    <ol-marker ol-marker-properties="eiffel"></ol-marker>
+    <ol-path message="{{message}}" show-on-mouse-over="hover" show="show" coords="[[[-58.38,-34.60], [-58.58,-34.60], [-60,-35]]]" ol-type="Polygon"></ol-path>
 </openlayers>
 <h1>You can change the marker message on the fly</h1>
-<input ng-model="eiffel.label.message">
+<input ng-model="message">
+<input type="checkbox" ng-model="show">Show Label
+<input type="checkbox" ng-model="hover">Hover Label
 <pre ng-bind="layers | json"></pre>
 <pre ng-bind="center | json"></pre>
 </body>
