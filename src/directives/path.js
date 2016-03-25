@@ -25,6 +25,7 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                 var layerCollection = map.getLayers();
                 var label;
                 var feature;
+                var extent;
                 var data = {};
 
                 insertLayer(layerCollection, layerCollection.getLength(), layer);
@@ -48,7 +49,7 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
 
                     if (attrs.message) {
                         scope.message = attrs.message;
-                        var extent = feature.getGeometry().getExtent();
+                        extent = feature.getGeometry().getExtent();
                         label = createOverlay(element, extent);
                         map.addOverlay(label);
                     }
@@ -71,15 +72,21 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                         if (detectedFeature === feature && scope.message) {
                             actionTaken = true;
                             found = true;
-                            var extent = detectedFeature.getGeometry().getExtent();
-                            label = createOverlay(element, extent);
-                            map.addOverlay(label);
+                            if(!isDefined(label)) {
+                                extent = detectedFeature.getGeometry().getExtent();
+                                label = createOverlay(element, extent);
+                                angular.forEach(map.getOverlays(), function(value) {
+                                    map.removeOverlay(value);
+                                });
+                                map.addOverlay(label);
+                            }
                             map.getTarget().style.cursor = 'pointer';
                         }
 
                         if (!found && label) {
                             actionTaken = true;
                             map.removeOverlay(label);
+                            label = undefined;
                             map.getTarget().style.cursor = '';
                         }
 
@@ -107,8 +114,6 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                         // Add a link between the feature and the marker properties
                         feature.set('path', properties);
                         layer.getSource().addFeature(feature);
-                    } else {
-                        console.log("why did I go here?!?!");
                     }
 
                     if (isDefined(label)) {
@@ -125,7 +130,7 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     }
 
                     if (properties.label && properties.label.show === true) {
-                        var extent = feature.getGeometry().getExtent();
+                        extent = feature.getGeometry().getExtent();
                         label = createOverlay(element, extent);
                         map.addOverlay(label);
                     }
