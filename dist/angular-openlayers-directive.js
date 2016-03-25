@@ -644,7 +644,7 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                         });
 
                         var actionTaken = false;
-                        if (detectedFeature === feature) {
+                        if (detectedFeature === feature && scope.message) {
                             actionTaken = true;
                             found = true;
                             var extent = detectedFeature.getGeometry().getExtent();
@@ -670,17 +670,11 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                             if(!oldMessage){
                                 if(scope.showMessage){
                                     map.addOverlay(label);
-                                }else if(scope.showMessageOnMouseOver){
-                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
-                                    map.getViewport().addEventListener('mousemove', handleInteraction);
                                 }
                             }
                             if(!newMessage){
                                 if(scope.showMessage){
                                     map.removeOverlay(label);
-                                }
-                                if(scope.showMessageOnMouseOver){
-                                    map.getViewport().removeEventListener('mousemove', handleInteraction);
                                 }
                             }
                         });
@@ -704,7 +698,6 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
 
                         if (attrs.hasOwnProperty('showMessageOnMouseOver')) {
                             scope.$watch('showMessageOnMouseOver', function (hover) {
-                                if(!scope.message) return;
                                 if (hover && !scope.show) {
                                     map.getViewport().removeEventListener('mousemove', handleInteraction);
                                     map.getViewport().addEventListener('mousemove', handleInteraction);
