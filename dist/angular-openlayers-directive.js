@@ -162,11 +162,9 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', f
                   map.addInteraction(newDrawInteraction);
                 });
 
-                if(!angular.isUndefined(scope.olGetDrawCollection)){
-                    scope.getDrawCollection = function () {
-                        return drawFeatures;
-                    };
-                }
+                scope.getDrawCollection = function () {
+                    return drawFeatures;
+                };
 
                 // Resolve the map object to the promises
                 scope.setMap(map);
