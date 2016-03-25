@@ -30,7 +30,7 @@
 </head>
 <body ng-controller="StaticImageController">
 <openlayers height="600px">
-    <ol-path message="{{message}}" show-on-mouse-over="hover" show="show" coords="[[[-58.38,-34.60], [-58.58,-34.60], [-60,-35]]]" ol-type="Polygon"></ol-path>
+    <ol-path message="{{message}}" show-message-on-mouse-over="hover" show-message="show" coords="[[[-58.38,-34.60], [-58.58,-34.60], [-60,-35]]]" ol-type="Polygon"></ol-path>
 </openlayers>
 <h1>You can change the marker message on the fly</h1>
 <input ng-model="message">

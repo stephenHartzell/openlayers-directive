@@ -591,8 +591,8 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
         restrict: 'E',
         scope: {
             properties: '=olGeomProperties',
-            showOnMouseOver: '=showOnMouseOver',
-            show: '=show'
+            showMessageOnMouseOver: '=showMessageOnMouseOver',
+            showMessage: '=showMessage'
         },
         require: '^openlayers',
         replace: true,
@@ -673,8 +673,8 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     if (attrs.hasOwnProperty('message')) {
                         var extent = feature.getGeometry().getExtent();
                         label = createOverlay(element, extent);
-                        if (attrs.hasOwnProperty('show')) {
-                            scope.$watch('show', function (show) {
+                        if (attrs.hasOwnProperty('showMessage')) {
+                            scope.$watch('showMessage', function (show) {
                                 if (show) {
                                     map.getViewport().removeEventListener('mousemove', handleInteraction);
                                     map.addOverlay(label);
@@ -687,8 +687,8 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                             });
                         }
 
-                        if (attrs.hasOwnProperty('showOnMouseOver')) {
-                            scope.$watch('showOnMouseOver', function (hover) {
+                        if (attrs.hasOwnProperty('showMessageOnMouseOver')) {
+                            scope.$watch('showMessageOnMouseOver', function (hover) {
                                 if (hover && !scope.show) {
                                     map.getViewport().removeEventListener('mousemove', handleInteraction);
                                     map.getViewport().addEventListener('mousemove', handleInteraction);
